@@ -1,6 +1,6 @@
 <?php
 session_start();
-require 'db.php';
+require_once(__DIR__ . '/db.php'); // Fayl mavjudligiga 100% kafolat
 
 // === 1. REFERAL LINK bo‘lsa ===
 if (isset($_GET['ref'])) {
@@ -16,22 +16,26 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     if ($username === "") {
         $msg = "Iltimos, foydalanuvchi nomini kiriting!";
     } else {
-        // Mavjud foydalanuvchini tekshiramiz
-        $stmt = $conn->prepare("SELECT * FROM users WHERE username = ?");
-        $stmt->execute([$username]);
-        $user = $stmt->fetch();
+        try {
+            // Mavjud foydalanuvchini tekshiramiz
+            $stmt = $conn->prepare("SELECT * FROM users WHERE username = ?");
+            $stmt->execute([$username]);
+            $user = $stmt->fetch();
 
-        if (!$user) {
-            // Yangi foydalanuvchini yaratamiz
-            $referer = $_SESSION['ref'] ?? null;
-            $insert = $conn->prepare("INSERT INTO users (username, referer) VALUES (?, ?)");
-            $insert->execute([$username, $referer]);
+            if (!$user) {
+                // Yangi foydalanuvchini yaratamiz
+                $referer = $_SESSION['ref'] ?? null;
+                $insert = $conn->prepare("INSERT INTO users (username, referer) VALUES (?, ?)");
+                $insert->execute([$username, $referer]);
+            }
+
+            // Kirish holatini eslab qolamiz
+            $_SESSION['user'] = $username;
+            header("Location: dashboard.php");
+            exit;
+        } catch (PDOException $e) {
+            $msg = "Bazaga ulanishda xatolik: " . $e->getMessage();
         }
-
-        // Kirish holatini eslab qolamiz
-        $_SESSION['user'] = $username;
-        header("Location: dashboard.php");
-        exit;
     }
 }
 ?>
@@ -41,6 +45,43 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 <head>
     <title>Referal Tizim</title>
     <link rel="stylesheet" href="style.css">
+    <style>
+        body {
+            background-color: #121212;
+            color: #ffffff;
+            font-family: sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        .container {
+            background-color: #1f1f1f;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 0 15px rgba(0,0,0,0.5);
+            width: 300px;
+        }
+        input, button {
+            padding: 10px;
+            margin-top: 10px;
+            width: 100%;
+            border-radius: 8px;
+            border: none;
+        }
+        button {
+            background-color: #00bcd4;
+            color: white;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #0097a7;
+        }
+        p {
+            margin-top: 10px;
+            color: #f44336;
+        }
+    </style>
 </head>
 <body>
 <div class="container">
@@ -49,7 +90,9 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         <input type="text" name="username" placeholder="Foydalanuvchi nomi" required><br>
         <button type="submit">Kirish</button>
     </form>
-    <p><?= $msg ?></p>
+    <?php if ($msg): ?>
+        <p><?= htmlspecialchars($msg) ?></p>
+    <?php endif; ?>
 </div>
 </body>
 </html>
