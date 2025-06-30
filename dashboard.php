@@ -28,23 +28,23 @@ $topUsers = $topStmt->fetchAll();
     <script>
         function copyReferral() {
             navigator.clipboard.writeText("<?= $refLink ?>");
-            alert("Referal havola nusxalandi!");
+            alert("Referral kodunyz kopyalandy!");
         }
     </script>
 </head>
 <body>
 <div class="container">
-    <h2>Salom, <?= htmlspecialchars($user['username']) ?>!</h2>
-    <p>Sizning referal havolangiz:</p>
+    <h2>Salam, <?= htmlspecialchars($user['username']) ?>!</h2>
+    <p>Sizin refferal kodunyz:</p>
     <code><?= $refLink ?></code>
-    <button onclick="copyReferral()">Havolani nusxalash</button>
-    <p>Siz orqali kirganlar soni: <?= $user['referrals'] ?></p>
+    <button onclick="copyReferral()">Kopyala</button>
+    <p>Referral girilenler: <?= $user['referrals'] ?></p>
 
     <hr>
-    <h3>TOP 10 foydalanuvchi</h3>
+    <h3>TOP 10 Agza:</h3>
     <ol>
         <?php foreach ($topUsers as $u): ?>
-            <li><?= htmlspecialchars($u['username']) ?> — <?= $u['referrals'] ?> ta</li>
+            <li><?= htmlspecialchars($u['username']) ?> — <?= $u['referrals'] ?> sany</li>
         <?php endforeach; ?>
     </ol>
 </div>
