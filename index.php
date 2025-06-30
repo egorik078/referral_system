@@ -33,7 +33,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         header("Location: dashboard.php");
         exit;
     } else {
-        $msg = "Iltimos, foydalanuvchi nomini kiriting.";
+        $msg = "Haysh Start user girizin..";
     }
 }
 ?>
@@ -42,15 +42,15 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>Ro‘yxatdan o‘tish</title>
+    <title>Ulgama girmek</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
 <div class="container">
-    <h2>Ismingizni kiriting:</h2>
+    <h2>Start messenger user:</h2>
     <form method="POST">
-        <input type="text" name="username" placeholder="masalan: egorikxd" required>
-        <button type="submit">Kirish</button>
+        <input type="text" name="username" placeholder="Start messenger username yazyn..." required>
+        <button type="submit">Girmek</button>
     </form>
     <p style="color:red;"><?= $msg ?></p>
 </div>
