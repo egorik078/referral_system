@@ -1,74 +1,52 @@
 <?php
 session_start();
-require_once(__DIR__ . '/db.php');
+require_once 'db.php';
 
-if (!isset($_SESSION['user'])) {
+if (!isset($_SESSION['user_id'])) {
     header("Location: index.php");
     exit;
 }
 
-$username = $_SESSION['user'];
+$userId = $_SESSION['user_id'];
 
-// Referal sonini hisoblash
-$stmt = $conn->prepare("SELECT COUNT(*) FROM users WHERE referer = ?");
-$stmt->execute([$username]);
-$refCount = $stmt->fetchColumn();
+$stmt = $conn->prepare("SELECT username, referrals FROM users WHERE id = ?");
+$stmt->execute([$userId]);
+$user = $stmt->fetch();
 
-// Dinamik bazaviy domenni olish
-$baseUrl = (isset($_SERVER['HTTPS']) ? "https://" : "http://") . $_SERVER['HTTP_HOST'];
-$refLink = $baseUrl . "/index.php?ref=" . urlencode($username);
+$refLink = (isset($_SERVER['HTTPS']) ? "https" : "http") . "://{$_SERVER['HTTP_HOST']}/index.php?ref=$userId";
+
+$topStmt = $conn->query("SELECT username, referrals FROM users ORDER BY referrals DESC LIMIT 10");
+$topUsers = $topStmt->fetchAll();
 ?>
 
 <!DOCTYPE html>
 <html>
 <head>
+    <meta charset="UTF-8">
     <title>Dashboard</title>
-    <style>
-        body {
-            background-color: #121212;
-            color: #fff;
-            font-family: sans-serif;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
+    <link rel="stylesheet" href="style.css">
+    <script>
+        function copyReferral() {
+            navigator.clipboard.writeText("<?= $refLink ?>");
+            alert("Referal havola nusxalandi!");
         }
-        .dashboard {
-            background-color: #1f1f1f;
-            padding: 30px;
-            border-radius: 12px;
-            width: 350px;
-            text-align: center;
-            box-shadow: 0 0 15px rgba(0,0,0,0.5);
-        }
-        a {
-            color: #00bcd4;
-            text-decoration: none;
-        }
-        a:hover {
-            text-decoration: underline;
-        }
-        .logout {
-            margin-top: 20px;
-            display: inline-block;
-            padding: 8px 16px;
-            background-color: #f44336;
-            color: white;
-            border-radius: 6px;
-            text-decoration: none;
-        }
-        .logout:hover {
-            background-color: #d32f2f;
-        }
-    </style>
+    </script>
 </head>
 <body>
-<div class="dashboard">
-    <h2>Salom, <?= htmlspecialchars($username) ?>!</h2>
-    <p><strong>Referal havolangiz:</strong></p>
-    <p><code><?= $refLink ?></code></p>
-    <p><strong>Siz orqali ro‘yxatdan o‘tganlar soni:</strong> <?= $refCount ?></p>
-    <a class="logout" href="logout.php">Chiqish</a>
+<div class="container">
+    <h2>Salom, <?= htmlspecialchars($user['username']) ?>!</h2>
+    <p>Sizning referal havolangiz:</p>
+    <code><?= $refLink ?></code>
+    <button onclick="copyReferral()">Havolani nusxalash</button>
+    <p>Siz orqali kirganlar soni: <?= $user['referrals'] ?></p>
+
+    <hr>
+    <h3>TOP 10 foydalanuvchi</h3>
+    <ol>
+        <?php foreach ($topUsers as $u): ?>
+            <li><?= htmlspecialchars($u['username']) ?> — <?= $u['referrals'] ?> ta</li>
+        <?php endforeach; ?>
+    </ol>
 </div>
 </body>
 </html>
