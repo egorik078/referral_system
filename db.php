@@ -1,0 +1,6 @@
+CREATE TABLE users (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    username VARCHAR(50) UNIQUE,
+    referer VARCHAR(50),
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+);
