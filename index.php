@@ -88,7 +88,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     <h2>Ismingizni kiriting</h2>
     <form method="POST">
         <input type="text" name="username" placeholder="Foydalanuvchi nomi" required><br>
-        <button type="submit">Kirish</button>
+        <button type="submit">Girmek</button>
     </form>
     <?php if ($msg): ?>
         <p><?= htmlspecialchars($msg) ?></p>
